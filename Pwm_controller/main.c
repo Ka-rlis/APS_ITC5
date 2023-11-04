@@ -20,7 +20,8 @@
 #include "main.h"
 #include "app_mems.h"
 #include "pwm_control.h"
-
+#include "stdio.h"
+#include "string.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -105,8 +106,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim14, TIM_CHANNEL_1);
   /* USER CODE END 2 */
-  uint32_t new_frequency = 10000; // New frequency in Hz
+  uint32_t new_frequency = 5000	; // New frequency in Hz
   UpdatePWMFrequency(&htim14, new_frequency);
+  char uartBuffer[50];
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -115,6 +117,16 @@ int main(void)
 
   MX_MEMS_Process();
     /* USER CODE BEGIN 3 */
+  if (BSP_PB_GetState(BUTTON_KEY) == 1) {
+      if (new_frequency <= 50000) {
+        new_frequency += 5000;
+        UpdatePWMFrequency(&htim14, new_frequency);
+        snprintf(uartBuffer, sizeof(uartBuffer), "Current PWM Frequency: %lu Hz\r\n", new_frequency);
+        HAL_UART_Transmit(&huart2, (uint8_t *)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
+
+        HAL_Delay(50);
+      }
+    }
   }
   /* USER CODE END 3 */
 }
