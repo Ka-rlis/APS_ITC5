@@ -1,6 +1,4 @@
-// pwm_control.c
 
-// pwm_control.h
 #ifndef PWM_CONTROL_H
 #define PWM_CONTROL_H
 #include "stm32f4xx_hal.h" // Change this include to match your specific STM32 series
