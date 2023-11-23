@@ -1,8 +1,27 @@
-
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2023 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "app_mems.h"
 #include "pwm_control.h"
+
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -26,7 +45,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 CRC_HandleTypeDef hcrc;
-
 RTC_HandleTypeDef hrtc;
 
 TIM_HandleTypeDef htim3;
@@ -87,17 +105,16 @@ int main(void)
   MX_MEMS_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim14, TIM_CHANNEL_1);
+  UpdatePWMFrequency(&htim14, 50); // Setting to 50 Hz
   /* USER CODE END 2 */
-  uint32_t new_frequency = 10000; // New frequency in Hz
-  UpdatePWMFrequency(&htim14, new_frequency);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */
-
   MX_MEMS_Process();
-    /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }
@@ -106,6 +123,8 @@ int main(void)
   * @brief System Clock Configuration
   * @retval None
   */
+
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
