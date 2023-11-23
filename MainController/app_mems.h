@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-extern uint32_t gyroZAxisValue;
+extern int32_t gyroZAxisValue;
 /* Exported defines ----------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
