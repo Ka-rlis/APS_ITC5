@@ -7,7 +7,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 static IKS01A2_MOTION_SENSOR_Capabilities_t MotionCapabilities[IKS01A2_MOTION_INSTANCES_NBR];
-extern TIM_HandleTypeDef htim14;
 /* Private function prototypes -----------------------------------------------*/
 static void Accelero_Sensor_Handler(uint32_t Instance);
 static uint32_t Gyro_Sensor_Handler(uint32_t Instance);
@@ -53,7 +52,7 @@ void MX_IKS01A2_DataLogTerminal_Process(void)
       Magneto_Sensor_Handler(i);
     }
   }
-  HAL_Delay(1000); // Delay for sensor data processing
+  HAL_Delay(300); // Delay for sensor data processing
 }
 
 static void Accelero_Sensor_Handler(uint32_t Instance) {
