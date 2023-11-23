@@ -1,4 +1,3 @@
-
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -105,18 +104,17 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   /* USER CODE END 2 */
-  uint32_t pwmValue = 1500;
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
   while (1)
   {
-    /* USER CODE END WHILE */
-
+	  /* USER CODE END WHILE */
   MX_MEMS_Process();
     /* USER CODE BEGIN 3 */
-  pwmValue = PWM_GyroMapping(gyroZAxisValue);
-  htim2.Instance->CCR1 = pwmValue;
+  Gyro_Data_Integration(gyroZAxisValue);
+  htim2.Instance->CCR1 = PWM_GyroMapping(angular_position_z);
+
   }
   /* USER CODE END 3 */
 }
