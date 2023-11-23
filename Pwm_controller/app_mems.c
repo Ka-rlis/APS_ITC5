@@ -16,6 +16,8 @@ static void Magneto_Sensor_Handler(uint32_t Instance);
 static void MX_IKS01A2_DataLogTerminal_Init(void);
 static void MX_IKS01A2_DataLogTerminal_Process(void);
 
+
+
 void MX_MEMS_Init(void)
 {
   /* Initialize the peripherals and the MEMS components */
@@ -33,21 +35,22 @@ void MX_IKS01A2_DataLogTerminal_Init(void)
   IKS01A2_MOTION_SENSOR_Init(IKS01A2_LSM6DSL_0, MOTION_ACCELERO | MOTION_GYRO);
   IKS01A2_MOTION_SENSOR_Init(IKS01A2_LSM303AGR_ACC_0, MOTION_ACCELERO);
   IKS01A2_MOTION_SENSOR_Init(IKS01A2_LSM303AGR_MAG_0, MOTION_MAGNETO);
+
 }
 
 void MX_IKS01A2_DataLogTerminal_Process(void)
 {
-  for(int i = 0; i < IKS01A2_MOTION_INSTANCES_NBR; i++)
+  for(int i = 0; i < 2; i++)
   {
-    if(MotionCapabilities[i].Acc)
+    if(MotionCapabilities[i].Acc ==0)
     {
       Accelero_Sensor_Handler(i);
     }
-    if(MotionCapabilities[i].Gyro)
+    if(MotionCapabilities[i].Gyro ==0)
     {
       Gyro_Sensor_Handler(i);
     }
-    if(MotionCapabilities[i].Magneto)
+    if(MotionCapabilities[i].Magneto ==0)
     {
       Magneto_Sensor_Handler(i);
     }
@@ -65,27 +68,20 @@ static void Accelero_Sensor_Handler(uint32_t Instance) {
 
 static void Gyro_Sensor_Handler(uint32_t Instance) {
     IKS01A2_MOTION_SENSOR_Axes_t angular_velocity;
-    char uartBuffer[100]; // Adjust the buffer size as needed
 
-    if (IKS01A2_MOTION_SENSOR_GetAxes(Instance, MOTION_GYRO, &angular_velocity) == 0) {
-        // Update the PWM duty cycle based on the Z-axis data of the gyroscope
-        UpdatePWMDutyCycle(&htim14, TIM_CHANNEL_1, angular_velocity.z);
+    // Read the gyroscope data
+    if (IKS01A2_MOTION_SENSOR_GetAxes(Instance, MOTION_GYRO, &angular_velocity) == 0)
+    	{
 
-        // Prepare the UART message
-        uint32_t pwm_duty_cycle = MapZAxisToPWMDutyCycle(angular_velocity.z);
-        snprintf(uartBuffer, sizeof(uartBuffer),
-                 "PWM: %lu, Gyro Z-Axis: %ld\r\n",
-                 pwm_duty_cycle,
-                 (long)angular_velocity.z); // Cast to long to match the %ld specifier
+        //UpdatePWMDutyCycle(&htim14, TIM_CHANNEL_1, angular_velocity.z);
+        int32_t gyroZAxisValue = angular_velocity.z;
 
-
-        // Transmit the UART message
-        HAL_UART_Transmit(&huart2, (uint8_t *)uartBuffer, strlen(uartBuffer), HAL_MAX_DELAY);
+        // Now you can use gyroZAxisValue as needed
+    } else {
+        // Handle the error in reading gyro data
+        // You can set an error flag or take appropriate action
     }
 }
-
-
-
 static void Magneto_Sensor_Handler(uint32_t Instance)
 {
   IKS01A2_MOTION_SENSOR_Axes_t magnetic_field;
