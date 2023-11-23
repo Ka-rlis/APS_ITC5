@@ -1,4 +1,3 @@
-
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -74,7 +73,7 @@ void MX_TIM3_Init(void);
 #define SWO_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+#define ARM_MATH_CM4
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
