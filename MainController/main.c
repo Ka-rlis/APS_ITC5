@@ -112,8 +112,7 @@ int main(void)
 	  /* USER CODE END WHILE */
   MX_MEMS_Process();
     /* USER CODE BEGIN 3 */
-  Gyro_Data_Integration(gyroZAxisValue);
-  htim2.Instance->CCR1 = PWM_GyroMapping(angular_position_z);
+  PWM_GyroMapping(angular_position_z);
 
   }
   /* USER CODE END 3 */
