@@ -22,18 +22,17 @@ float Gyro_Data_Integration(int32_t gyroZAxisValue){
 
 }
 
-
-int32_t PWM_GyroMapping(int32_t angular_position_z){
+void PWM_GyroMapping(int32_t gyroZAxisValue){
 	// Min Pulse width = 0micros, Max = 20000micros
 	// Min motor PWM 900micros, Max = 2100micros
-	current_duty_cycle = (angular_position_z / 5000) + 1500;
+	current_duty_cycle = (Gyro_Data_Integration(gyroZAxisValue) / 5000) + 1500;
 
     if (current_duty_cycle > 1700) {
-        return 1700;
+        htim2.Instance->CCR1 = 1700;
     } else if (current_duty_cycle < 1300) {
-        return 1300;
+        htim2.Instance->CCR1 = 1300;
     } else {
-        return current_duty_cycle;
+    	htim2.Instance->CCR1 = current_duty_cycle;
     }
 }
 
