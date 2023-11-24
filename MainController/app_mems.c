@@ -17,7 +17,7 @@ static void MX_IKS01A2_DataLogTerminal_Process(void);
 
 void MX_MEMS_Init(void)
 {
-  /* Initialize the peripherals and the MEMS components */
+
   MX_IKS01A2_DataLogTerminal_Init();
 }
 
@@ -52,31 +52,29 @@ void MX_IKS01A2_DataLogTerminal_Process(void)
       Magneto_Sensor_Handler(i);
     }
   }
-  HAL_Delay(300); // Delay for sensor data processing
+  HAL_Delay(300);
 }
 
 static void Accelero_Sensor_Handler(uint32_t Instance) {
     IKS01A2_MOTION_SENSOR_Axes_t acceleration;
     if (IKS01A2_MOTION_SENSOR_GetAxes(Instance, MOTION_ACCELERO, &acceleration) == 0)
       {
-        // Process gyroscope data
+
       }
 }
 
 static uint32_t Gyro_Sensor_Handler(uint32_t Instance) {
     IKS01A2_MOTION_SENSOR_Axes_t angular_velocity;
 
-    // Read the gyroscope data
+
     if (IKS01A2_MOTION_SENSOR_GetAxes(Instance, MOTION_GYRO, &angular_velocity) == 0)
     	{
 
-        //UpdatePWMDutyCycle(&htim14, TIM_CHANNEL_1, angular_velocity.z);
         gyroZAxisValue = angular_velocity.z;
 
-        // Now you can use gyroZAxisValue as needed
+
         return gyroZAxisValue;
     } else {
-    	return gyroZAxisValue == 404;
     }
 }
 static void Magneto_Sensor_Handler(uint32_t Instance)
