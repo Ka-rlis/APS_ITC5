@@ -16,6 +16,7 @@
   ******************************************************************************
   */
 #include "main.h"
+#include "iks01a2_motion_sensors.h"
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __APP_MEMS_H
 #define __APP_MEMS_H
@@ -26,12 +27,15 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 extern int32_t gyroZAxisValue;
+extern IKS01A2_MOTION_SENSOR_Axes_t acceleration;
+extern IKS01A2_MOTION_SENSOR_Axes_t magnetic_field;
+extern IKS01A2_MOTION_SENSOR_Axes_t angular_velocity;
 /* Exported defines ----------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
 void MX_MEMS_Init(void);
 void MX_MEMS_Process(void);
-
+extern TIM_HandleTypeDef htim3;
 #ifdef __cplusplus
 }
 #endif
