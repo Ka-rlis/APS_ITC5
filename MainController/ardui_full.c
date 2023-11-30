@@ -46,8 +46,11 @@ LSM6DSLSensor AccGyr(&Wire);
 HardwareTimer *MyTim;
 
 volatile uint8_t fusion_flag; 
-Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> u);
+Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> input);
 Matrix<2,1> IntegError(Matrix<2, 1> y, Matrix<2, 1> r);
+Matrix<2,1> InputXD(Matrix<2,1> u_e, Matrix<2,1> integralError);
+Matrix<2,1> pwmMap(Matrix<2,1> input); 
+
   // MATRIX STUFF 
   
   // Observer definitions
@@ -96,6 +99,10 @@ Matrix<2,1> IntegError(Matrix<2, 1> y, Matrix<2, 1> r);
   0.1856,    1.0714,   -3.5135,   -1.6571,   -0.1121,    0.2086
   };
 
+  Matrix<2,1> input = { 
+    0, 0
+  };
+
   BLA::Matrix<2, 1> integralError = { 
     0, 0
   };
@@ -107,7 +114,6 @@ Matrix<2,1> IntegError(Matrix<2, 1> y, Matrix<2, 1> r);
   // OTHER MATRIX definition
   BLA::Matrix<2, 1> r = {0, 0};
   BLA::Matrix<2, 1> y = {0, 0};
-  BLA::Matrix<2, 1> u = {1, 1};
   BLA::Matrix<6, 1> x_est = {0,0,0,0,0,0};
  
 
@@ -206,9 +212,14 @@ void loop() {
 
       y(0, 0) = data_out.rotation[0];
       y(1, 0) = data_out.linear_acceleration[1];
-
-      ObserverUpdate(y, u);
+      //Serial.print("y 0 0  is : ");
+      //Serial.println(y(0,0));
+      //Serial.print("y 1 0  is : ");
+      //Serial.println(y(1,0));
+      ObserverUpdate(y, input);
       IntegError(y, r);
+      InputXD(u_e, integralError);
+      pwmMap(input);
     }
     else
     {
@@ -218,7 +229,7 @@ void loop() {
   }
 }
 
-Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> u) { 
+Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> input) { 
   // Compute A_obs = A - LC
   BLA::Matrix<6, 6> lc = L * C; 
   BLA::Matrix<6, 6> A_obs = A - lc;
@@ -227,7 +238,7 @@ Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> u) {
   BLA::Matrix<6, 4> B_obs = B || L;
 
   // Comput u ; y_meas
-  BLA::Matrix<4, 1> uy = u && y;
+  BLA::Matrix<4, 1> uy = input && y;
 
   // Compute x_est_next = A_obs * x_est + B_obs * [u; y_meas]
   BLA::Matrix<6, 1> x_est_next = (A_obs * x_est) + (B_obs * uy);
@@ -240,9 +251,27 @@ Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> u) {
 
 Matrix<2,1> IntegError(Matrix<2, 1> y, Matrix<2, 1> r) { 
   BLA::Matrix<2,1> Error = r - y; 
-  float_t dt = 0.01f;
+  float  dt = 0.01f;
   integralError += Error * dt;
   integralError = K_i * integralError; 
 
   return integralError; 
+}
+
+Matrix<2,1> InputXD(Matrix<2,1> u_e, Matrix<2,1> integralError){ 
+  input = integralError + u_e;  
+  //Serial.print("input is");
+  //Serial.println(input(0,0));
+  return input;
+}
+
+Matrix<2,1> pwmMap(Matrix<2,1> input) {
+  int pwm1 = map(input(0,0), -1, 1, 1000, 2000);
+  int pwm2 = map(input(1,0), -1, 1, 1000, 2000);
+  //Serial.print("Pwm signal 1 is : ");
+  //Serial.println(pwm1);
+  
+  //Serial.print("Pwm signal 2 is : ");
+  //Serial.println(pwm2);
+  return pwm1, pwm2;
 }
