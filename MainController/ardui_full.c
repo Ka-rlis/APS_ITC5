@@ -46,15 +46,15 @@ LSM6DSLSensor AccGyr(&Wire);
 HardwareTimer *MyTim;
 
 volatile uint8_t fusion_flag; 
-Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> input);
-Matrix<2,1> IntegError(Matrix<2, 1> y, Matrix<2, 1> r);
-Matrix<2,1> InputXD(Matrix<2,1> u_e, Matrix<2,1> integralError);
-Matrix<2,1> pwmMap(Matrix<2,1> input); 
+Matrix<2,1> ObserverUpdate(const Matrix<2, 1, float> y, const Matrix<2, 1, float> input);
+Matrix<2,1> IntegError(const Matrix<2, 1, float> y, const Matrix<2, 1, float> r);
+Matrix<2,1> InputXD(const Matrix<2,1, float> u_e);
+Matrix<2,1> pwmMap(); 
 
   // MATRIX STUFF 
   
   // Observer definitions
-  BLA::Matrix<6, 6> A = 
+  BLA::Matrix<6, 6, float> A = 
   {
   0,    1.0000,         0,         0,         0,         0,
   -4.5796,         0,         0,         0,    0.1460,    0.1460,
@@ -80,7 +80,7 @@ Matrix<2,1> pwmMap(Matrix<2,1> input);
   0,     0,     1,     0,     0,     0
   };
 
-  BLA::Matrix<6, 2> L = { 
+  BLA::Matrix<6, 2, float> L = { 
   5.0579,    0.0773,
   -3.1079,    0.3535,
   0.0966,    5.1477,
@@ -89,32 +89,32 @@ Matrix<2,1> pwmMap(Matrix<2,1> input);
   11.5894,   -4.1788
   }; 
 
-  BLA::Matrix<2, 2> K_i = {
+  BLA::Matrix<2, 2, float> K_i = {
    -2.2361,   -2.2361,    
    -2.2361,    2.2361
    };
   
-  BLA::Matrix<2, 6> K_f = {
+  BLA::Matrix<2, 6, float> K_f = {
   0.1856,    1.0714,    3.5135,    1.6571,    0.2086,   -0.1121,
   0.1856,    1.0714,   -3.5135,   -1.6571,   -0.1121,    0.2086
   };
 
-  Matrix<2,1> input = { 
-    0, 0
+  Matrix<2,1, float> input = { 
+    0.0f, 0.0f
   };
 
-  BLA::Matrix<2, 1> integralError = { 
-    0, 0
+  BLA::Matrix<2, 1, float> integralError = { 
+    0.0f, 0.0f
   };
 
-  BLA::Matrix<2, 1> u_e = { 
-    0, 0
+  BLA::Matrix<2, 1, float> u_e = { 
+    0.0f, 0.0f
   };
 
   // OTHER MATRIX definition
-  BLA::Matrix<2, 1> r = {0, 0};
-  BLA::Matrix<2, 1> y = {0, 0};
-  BLA::Matrix<6, 1> x_est = {0,0,0,0,0,0};
+  BLA::Matrix<2, 1, float> r = {0.0f, 0.0f};
+  BLA::Matrix<2, 1, float> y = {0, 0};
+  BLA::Matrix<6, 1, float> x_est = {0,0,0,0,0,0};
  
 
 void fusion_update(void)
@@ -217,9 +217,7 @@ void loop() {
       //Serial.print("y 1 0  is : ");
       //Serial.println(y(1,0));
       ObserverUpdate(y, input);
-      IntegError(y, r);
-      InputXD(u_e, integralError);
-      pwmMap(input);
+      pwmMap();
     }
     else
     {
@@ -229,7 +227,7 @@ void loop() {
   }
 }
 
-Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> input) { 
+Matrix<2,1, float> ObserverUpdate(const Matrix<2, 1, float> y, const Matrix<2, 1, float> input) { 
   // Compute A_obs = A - LC
   BLA::Matrix<6, 6> lc = L * C; 
   BLA::Matrix<6, 6> A_obs = A - lc;
@@ -249,8 +247,8 @@ Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> input) {
   return u_e;
 }
 
-Matrix<2,1> IntegError(Matrix<2, 1> y, Matrix<2, 1> r) { 
-  BLA::Matrix<2,1> Error = r - y; 
+Matrix<2,1, float> IntegError(const Matrix<2, 1, float> y, const Matrix<2, 1, float> r) { 
+  BLA::Matrix<2,1, float> Error = r - y; 
   float  dt = 0.01f;
   integralError += Error * dt;
   integralError = K_i * integralError; 
@@ -258,20 +256,21 @@ Matrix<2,1> IntegError(Matrix<2, 1> y, Matrix<2, 1> r) {
   return integralError; 
 }
 
-Matrix<2,1> InputXD(Matrix<2,1> u_e, Matrix<2,1> integralError){ 
-  input = integralError + u_e;  
+Matrix<2,1, float> InputXD(const Matrix<2,1, float> u_e){ 
+  BLA::Matrix<2,1, float> integralErrors = IntegError(y, r);
+  input = integralErrors + u_e;  
   //Serial.print("input is");
   //Serial.println(input(0,0));
   return input;
 }
 
-Matrix<2,1> pwmMap(Matrix<2,1> input) {
+Matrix<2,1, float> pwmMap() {
+  BLA::Matrix<2,1,float> inputs = InputXD(u_e);
   int pwm1 = map(input(0,0), -1, 1, 1000, 2000);
   int pwm2 = map(input(1,0), -1, 1, 1000, 2000);
-  //Serial.print("Pwm signal 1 is : ");
-  //Serial.println(pwm1);
-  
-  //Serial.print("Pwm signal 2 is : ");
-  //Serial.println(pwm2);
+  Serial.println("Pwm signal 1 is : ");
+  Serial.println(pwm1);
+  Serial.println("Pwm signal 2 is : ");
+  Serial.println(pwm2);
   return pwm1, pwm2;
 }
