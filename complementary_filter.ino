@@ -149,7 +149,7 @@ void sensor_all(){
 
 
   // roll n pitch acc
-  Sensor_angle_Acc(0, 0) = atan2(Sensor_Acc(0, 0),Sensor_Acc(1, 0));
+  Sensor_angle_Acc(0, 0) = atan2(Sensor_Acc(0, 0),Sensor_Acc(2, 0));
   Sensor_angle_Acc(1, 0) = atan2(Sensor_Acc(2, 0), g);
 
   // yaw mag netto
@@ -161,15 +161,15 @@ void sensor_all(){
 void ob() { 
 
 
-  //x_est_next(1, 0) = alpha * (x_est(1, 0) + Sensor_angle_Gyro(1, 0)) + (1 - alpha) * Sensor_angle_Acc(1, 0);
+  x_est_next(1, 0) = alpha * (x_est(1, 0) + Sensor_angle_Gyro(0, 0)) + (1 - alpha) * Sensor_angle_Acc(0, 0);
   x_est_next(2, 0) = alpha * (x_est(2, 0) + Sensor_angle_Gyro(2, 0)) + (1 - alpha) * Sensor_angle_Mag(0, 0);
 
   // Compute x_est_next = A_obs * x_est + B_obs * [u; y_meas]
   //BLA::Matrix<2, 1> x_est_next = (A * x_est) + (Sensor_angle_Gyro)+ L*(Sensor_angle_Gyro - Sensor_angle_Acc);
 
   // Update the x_est to the current calc
-  x_est(2, 0) = x_est_next(2, 0);
-  Serial.println(x_est_next(2, 0));
+  x_est(1, 0) = x_est_next(1, 0);
+  //Serial.println();
 };
 
 
