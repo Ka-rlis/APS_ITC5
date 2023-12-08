@@ -5,6 +5,7 @@
 #include <Wire.h> 
 #include <BasicLinearAlgebra.h>
 
+
 using namespace BLA;
 
 // Constants and Macros from your first code
@@ -53,7 +54,7 @@ volatile uint8_t fusion_flag;
 Matrix<2, 1, float> ObserverUpdate(const Matrix<2, 1, float>& y);
 Matrix<2, 1, float> IntegError(const Matrix<2, 1, float>& y, const Matrix<2, 1, float>& r);
 Matrix<2,1> InputXD(const Matrix<2,1, float> u_e);
-int pwmMap(float inputs);
+
 
 
 // Observer definitions
@@ -102,9 +103,6 @@ BLA::Matrix<2, 6, float> K_f = {
 0.1856,    1.0714,   -3.5135,   -1.6571,   -0.1121,    0.2086
 };
 
-Matrix<2,1, float> input = { 
-  0.0f, 0.0f
-};
 
 BLA::Matrix<2, 1, float> integralError = { 
   0.0f, 0.0f
@@ -121,6 +119,8 @@ BLA::Matrix<2, 1, float> x_est = {0, 0};
 BLA::Matrix<2, 1, float> x_est_next = {0, 0};
 BLA::Matrix<6, 1, float> curr_state = {0, 0, 0, 0, 0, 0};
 BLA::Matrix<6, 1, float> next_state = {0, 0, 0, 0, 0, 0};
+BLA::Matrix<2, 1, float> input = {0, 0};
+
 
 void setup() {
   // Initialize Serial
@@ -204,12 +204,16 @@ void loop() {
   //Serial.print("      Yaw is : "); Serial.print(x_est_next(1, 0));
 
   complementaryFilter();
-
-  ObserverUpdate(x_est);  
-
-  Serial.print(map(u_e(0,0), 8.5, -8.5, 1000, 2000));
+  ObserverUpdate(x_est_next); 
+  InputXD(u_e); 
+  Serial.print("raw: "); 
+  Serial.print(map(input(0,0),-5,5,1000,2000));
   Serial.print( "   " );
-  Serial.println(map(u_e(1,0), 8.5, -8.5, 1000, 2000));
+  Serial.print("raw2: ");
+  Serial.print(map(input(1,0),-5,5,1000,2000));
+  Serial.print( "   " );
+  Serial.print( "yaw: " );
+  Serial.println(x_est_next(1,0));
   delay(10);
 }
 
@@ -236,12 +240,10 @@ Matrix<2, 1, float> IntegError(const Matrix<2, 1, float>& y, const Matrix<2, 1, 
     BLA::Matrix<2, 1, float> Error = r - y;
 
     // Calculate the time difference in seconds
-    unsigned long currTime = millis();
-    float dt = static_cast<float>(currTime - lastTime) / 1000.0f; // Convert milliseconds to seconds
-    lastTime = currTime;
+
 
     // Integrate the error over time
-    integralError += Error * dt;
+    integralError += Error * deltaTime;
 
     // Apply the integral gain
     BLA::Matrix<2, 1, float> integralTerm = K_i * integralError;
@@ -250,8 +252,9 @@ Matrix<2, 1, float> IntegError(const Matrix<2, 1, float>& y, const Matrix<2, 1, 
 }
 
 Matrix<2,1, float> InputXD(const Matrix<2,1, float> u_e){ 
-  BLA::Matrix<2,1, float> integralErrors = IntegError(y, r);
-  input = integralErrors + u_e;  
-  return input;
+  BLA::Matrix<2,1, float> integralErrors = IntegError(x_est_next, r);
+  input = integralErrors + u_e; 
+  BLA::Matrix<2,1, float> input1; 
+  return input1;
 }
   
