@@ -125,7 +125,7 @@ BLA::Matrix<2, 1, float> input = {0, 0};
 void setup() {
   // Initialize Serial
   Serial.begin(9600);
-  while (!Serial) yield();  // Wait for Serial to be ready
+  while (!Serial) yield(); 
 
   // Initialize I2C bus
   Wire.begin();
@@ -200,8 +200,6 @@ void loop() {
   lastTime = currentTime;
 
   sensor_all();
-  //Serial.print("      Sway is : "); Serial.print(x_est_next(0, 0));
-  //Serial.print("      Yaw is : "); Serial.print(x_est_next(1, 0));
 
   complementaryFilter();
   ObserverUpdate(x_est_next); 
