@@ -208,11 +208,11 @@ void loop() {
   InputXD(u_e); 
   Serial.print("raw: "); 
   pwmMap(input(0,0));
-  Serial.print(map(input(0,0),-5,5,1000,2000));
+  Serial.print(pwmMap(input(0,0)));
   Serial.print( "   " );
   Serial.print("raw2: ");
   pwmMap(input(1,0));
-  Serial.print(map(input(1,0),-5,5,1000,2000));
+  Serial.print(pwmMap(input(1,0)));
   Serial.print( "   " );
   Serial.print( "yaw: " );
   Serial.println(x_est_next(1,0));
