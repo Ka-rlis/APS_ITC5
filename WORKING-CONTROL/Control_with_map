@@ -234,6 +234,9 @@ BLA::Matrix<6, 1> L_y = L * (y - (C * curr_state));
 
   
   u_e = -K_f * next_state; 
+  u_e(0, 0) = (u_e(0, 0) > 1.0f) ? 1.0f : ((u_e(0, 0) < -1.0f) ? -1.0f : u_e(0, 0));
+  u_e(1, 0) = (u_e(1, 0) > 1.0f) ? 1.0f : ((u_e(1, 0) < -1.0f) ? -1.0f : u_e(1, 0));
+
   return u_e;
 }
   
