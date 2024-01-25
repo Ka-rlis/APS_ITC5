@@ -149,16 +149,8 @@ void setup() {
   Acc2.SetFS(2);       // Set full scale
   Acc2.Enable();        // Enable Accelerometer
 
-  // Other initializations if needed from your first code
-  // ...
-
-  // Initialize any timers or additional components
-  // ...
-
-  // Reset global variables if needed
   fusion_flag = 0;
-  // Reset other global variables if necessary
-  // ...
+ 
 }
 void sensor_all(){
   // Read accelerometer and gyroscope data from LSM6DSLSensor
@@ -221,11 +213,7 @@ void loop() {
 
 
 Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> input) { 
-    // Assuming A, B, C, L are defined and globally accessible
-    // Also assuming the types are as follows:
-    // A: Matrix<6, 6>, B: Matrix<6, 2>, C: Matrix<2, 6>, L: Matrix<6, 2>
-
-    // Compute the observer gain applied to the measurement error
+   
     BLA::Matrix<6, 1> L_y = L * (y - (C * x_est));
 
     // Compute the input effect
@@ -235,10 +223,8 @@ Matrix<2,1> ObserverUpdate(Matrix<2, 1> y, Matrix<2, 1> input) {
     BLA::Matrix<6, 1> x_est_next = x_est +  (((A * x_est) + B_u + L_y) * 0.01f) ;
 
   // Update the x_est to the current calc
-  x_est = x_est_next;
-
-  
-  u_e = -K_f * x_est_next; 
+    x_est = x_est_next;
+    u_e = -K_f * x_est_next; 
 
   return u_e;
 }
@@ -255,8 +241,7 @@ Matrix<2,1, float> IntegError(const Matrix<2, 1, float> y, const Matrix<2, 1, fl
 Matrix<2,1, float> InputXD(const Matrix<2,1, float> u_e){ 
   BLA::Matrix<2,1, float> integralErrors = IntegError(y, r);
   input = integralErrors + u_e;  
-  //Serial.print("input is");
-  //Serial.println(input(0,0));
+
   return input;
 }
   
