@@ -1,8 +1,4 @@
-#if (__CORTEX_M == 0U)
-#include "motion_fx_cm0p.h"
-#else
 #include "motion_fx.h"
-#endif
 #include "LSM6DSLSensor.h"
 #include <BasicLinearAlgebra.h>
 #include <Servo.h>
@@ -31,11 +27,6 @@ using namespace BLA;
 
 float deltaTime;
 unsigned long lastTime;
-
-
-
-// Other necessary global variables and matrices from your first code
-
 Matrix<2, 1, float> ObserverUpdate(const Matrix<2, 1, float>& y);
 Matrix<2, 1, float> IntegError(const Matrix<2, 1, float>& y, const Matrix<2, 1, float>& r);
 void InputXD(const Matrix<2,1, float> u_e);
@@ -166,10 +157,7 @@ BLA::Matrix<6, 1> L_y = L * ((r-y) - (C * curr_state));
 
   
   u_e = -K_f * next_state;
- // Serial.println("    ue1: "); 
- // Serial.print(u_e(0,0));
- // Serial.print("      ue2: "); 
- // Serial.print(u_e(1,0));
+
   return u_e;
 }
   
@@ -177,12 +165,6 @@ Matrix<2, 1, float> IntegError(const Matrix<2, 1, float>& y, const Matrix<2, 1, 
     // Calculate the error
     BLA::Matrix<2, 1, float> Error = r - y;
   
-
- // Serial.print("            in1: ");
- // Serial.print((input(0,0)));
- // Serial.print("              in2: ");
- // Serial.println((input(1,0)));
-    // Deadband threshold
     float deadband = 0.01f;
 
     // Integrate the error over time only if error is outside the deadband
@@ -250,18 +232,6 @@ void setup() {
   delay(10);
 
   /* Initialize sensor fusion library */
-#if (__CORTEX_M == 0U)
-  MotionFX_CM0P_initialize(MFX_CM0P_MCU_STM32);
-  MotionFX_CM0P_setOrientation("nwu", "nwu", NULL);
-  MotionFX_CM0P_enable_gbias(MFX_CM0P_ENGINE_ENABLE);
-  MotionFX_CM0P_enable_euler(MFX_CM0P_ENGINE_ENABLE);
-  MotionFX_CM0P_enable_6X(MFX_CM0P_ENGINE_ENABLE);
-  MotionFX_CM0P_enable_9X(MFX_CM0P_ENGINE_DISABLE);
-
-  /* OPTIONAL */
-  /* Get library version */
-  LibVersionLen = (int)MotionFX_CM0P_GetLibVersion(LibVersion);
-#else
   MotionFX_initialize((MFXState_t *)mfxstate);
 
   MotionFX_getKnobs(mfxstate, ipKnobs);
@@ -284,10 +254,6 @@ void setup() {
   MotionFX_enable_6X(mfxstate, MFX_ENGINE_ENABLE);
   MotionFX_enable_9X(mfxstate, MFX_ENGINE_DISABLE);
 
-  /* OPTIONAL */
-  /* Get library version */
-  LibVersionLen = (int)MotionFX_GetLibVersion(LibVersion);
-#endif
   MyTim = new HardwareTimer(TIM3);
   MyTim->setOverflow(ALGO_FREQ, HERTZ_FORMAT);
   MyTim->attachInterrupt(fusion_update);
@@ -378,8 +344,6 @@ void loop() {
       Serial.print(mapf(data_out.rotation[1],0.0f,360.0f,0.0f,3.0f));
       x_est_next(0,0) = 1.5*tan(mapf(data_out.rotation[1],0.0f,360.0f,0.0f,3.0f));
       
-
-
     }
     else
     {
@@ -390,9 +354,6 @@ void loop() {
   unsigned long currentTime = millis();
   deltaTime = (currentTime - lastTime) / 100.0; // Time difference in seconds
   lastTime = currentTime;
-  
-
- // runForDuration(5000);
 
   ObserverUpdate(x_est_next); 
   InputXD(u_e); 
