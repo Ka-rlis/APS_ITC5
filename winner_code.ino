@@ -225,21 +225,14 @@ void calibration(){
 
   // Initialize the PWM for the left motor (D15)
   motorLeftTimer = new HardwareTimer(TIM2); // Use appropriate timer for D15
-  Serial.println("1");
   motorLeftTimer->setMode(3, TIMER_OUTPUT_COMPARE_PWM1, MOTOR_LEFT_PIN);
-  Serial.println("2");
   motorLeftTimer->setOverflow(PWM_FREQUENCY, HERTZ_FORMAT);
-  Serial.println("3");
   // Initialize the PWM for the right motor (D14)
   motorRightTimer = new HardwareTimer(TIM2); // Use appropriate timer for D14
-  Serial.println("4");
   motorRightTimer->setMode(2, TIMER_OUTPUT_COMPARE_PWM1, MOTOR_RIGHT_PIN);
-  Serial.println("5");
   motorRightTimer->setOverflow(PWM_FREQUENCY, HERTZ_FORMAT);
-  Serial.println("6");
   // Start with Maximum Throttle
   motorLeftTimer->setCaptureCompare(3, MAX_THROTTLE, MICROSEC_COMPARE_FORMAT);
-  Serial.println("7");
   motorRightTimer->setCaptureCompare(2, MAX_THROTTLE, MICROSEC_COMPARE_FORMAT);
   motorLeftTimer->resume();
   motorRightTimer->resume();
