@@ -150,27 +150,14 @@ float mapf(float x, float in_min, float in_max, float out_min, float out_max)
 
 
 Matrix<2, 1, float>ObserverUpdate(const Matrix<2, 1, float>& y) {
-BLA::Matrix<6, 1> L_y = L * ((y-r) - (C * curr_state));
-
+    BLA::Matrix<6, 1> L_y = L * ((y-r) - (C * curr_state));
     // Compute the input effect
     BLA::Matrix<6, 1> B_u = B * input;
-
     // Update equation with Euler integration
-    BLA::Matrix<6, 1> next_state = (A * curr_state) + B_u + L_y ;
-
-  //Serial.print("    ob1E: "); 
-  //Serial.print((y-r)(0,0));
-  //Serial.print("      ob2E: "); 
-  //Serial.print((y-r)(1,0));
-  //Serial.print("          In: "); 
-  //Serial.println(input(1,0));
-  // Update the x_est to the current calc
-  curr_state = next_state;
-
-  
-  u_e = -K_f * next_state;
-
-  return u_e;
+    BLA::Matrix<6, 1> next_state = (A * curr_state) + B_u + L_y;
+    curr_state = next_state;
+    u_e = -K_f * next_state;
+    return u_e;
 }
   
 Matrix<2, 1, float> IntegError(const Matrix<2, 1, float>& y, const Matrix<2, 1, float>& r) {
@@ -181,18 +168,15 @@ Matrix<2, 1, float> IntegError(const Matrix<2, 1, float>& y, const Matrix<2, 1, 
 
     // Integrate the error over time only if error is outside the deadband
      if (abs(Error(0,0)) > deadband || abs(Error(1,0)) > deadband) {
-      //  Serial.println("error is: " );
-      //  Serial.print(Error(1,0));
         integralError += Error * deltaTime;
         integralError = {0.0f, 0.0f};
-    } else {
-        // Optional: Reset the integral error within the deadband
+     } 
+     else {
          integralError = {0.0f, 0.0f};
-    }
-
+     }
     // Apply the integral gain
-    BLA::Matrix<2, 1, float> integralTerm = K_i * integralError;
-    return integralTerm;
+     BLA::Matrix<2, 1, float> integralTerm = K_i * integralError;
+     return integralTerm;
 }
 
 void InputXD(const Matrix<2,1, float> u_e){ 
@@ -356,13 +340,9 @@ void loop() {
 
       MotionFX_propagate(mfxstate, &data_out, &data_in, &delta_time);
       MotionFX_update(mfxstate, &data_out, &data_in, &delta_time, NULL);
-
-
-      //Serial.print("Yaw: ");
-      //Serial.print(convertToRadians(data_out.rotation[0]));
+        
       x_est_next(1,0) = convertToRadians(data_out.rotation[0]);
-      //Serial.print("  Pitch: ");
-      //Serial.print(convertToRadians(data_out.rotation[1]));
+
       x_est_next(0,0) = convertToRadians(data_out.rotation[1]);
       
       
