@@ -329,13 +329,8 @@ void loop() {
 
   if(fusion_flag)
   {
-#if (__CORTEX_M == 0U)
-    MFX_CM0P_input_t data_in;
-    MFX_CM0P_output_t data_out;
-#else
     MFX_input_t data_in;
     MFX_output_t data_out;
-#endif
     float delta_time = MOTION_FX_ENGINE_DELTATIME;
     fusion_flag = 0;
     AccGyr.Get_X_Axes(accelerometer);
